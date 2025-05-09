@@ -6,6 +6,9 @@ import Link from 'next/link';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
+import { fetchPropertiesFromAPI } from '../api/api';
+
+
 export default function ListingsPage() {
   const searchParams = useSearchParams();
   
@@ -25,46 +28,46 @@ export default function ListingsPage() {
 
   useEffect(() => {
     const fetchProperties = async () => {
-      setLoading(true);
-      setError('');
-      
-      try {
-        // Build query string from search params
-        const queryParams = new URLSearchParams();
-        if (filters.location) queryParams.append('location', filters.location);
-        if (filters.propertyType !== 'Property Type') queryParams.append('propertyType', filters.propertyType);
-        if (filters.priceRange !== 'Price Range') queryParams.append('priceRange', filters.priceRange);
-        if (filters.bedrooms !== 'Bedrooms') queryParams.append('bedrooms', filters.bedrooms);
-        
-        const response = await fetch(`/api/search?${queryParams.toString()}`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch properties');
+        setLoading(true);
+        setError('');
+
+        try {
+            // Build query string from filters
+            const queryParams = new URLSearchParams();
+            if (filters.location) queryParams.append('location', filters.location);
+            if (filters.propertyType !== 'Property Type') queryParams.append('propertyType', filters.propertyType);
+            if (filters.priceRange !== 'Price Range') queryParams.append('priceRange', filters.priceRange);
+            if (filters.bedrooms !== 'Bedrooms') queryParams.append('bedrooms', filters.bedrooms);
+
+            const data = await fetchPropertiesFromAPI(queryParams.toString());
+            let sortedProperties = [...data]; // Use the response directly as it's a list
+
+            // Sort properties based on selected option
+            if (sortOption === 'price-low') {
+                sortedProperties.sort((a, b) => parseFloat(a.rent) - parseFloat(b.rent));
+            } else if (sortOption === 'price-high') {
+                sortedProperties.sort((a, b) => parseFloat(b.rent) - parseFloat(a.rent));
+            } else if (sortOption === 'bedrooms') {
+                // Assuming bedrooms are part of the description (e.g., "2BHK")
+                sortedProperties.sort((a, b) => {
+                    const aBeds = parseInt(a.description.match(/\d+/)?.[0] || 0);
+                    const bBeds = parseInt(b.description.match(/\d+/)?.[0] || 0);
+                    return bBeds - aBeds;
+                });
+            }
+
+            setProperties(sortedProperties);
+        } catch (err) {
+            setError('Failed to load properties. Please try again.');
+            console.error('Error fetching properties:', err);
+        } finally {
+            setLoading(false);
         }
-        
-        const data = await response.json();
-        let sortedProperties = [...data.properties];
-        
-        // Sort properties based on selected option
-        if (sortOption === 'price-low') {
-          sortedProperties.sort((a, b) => a.price - b.price);
-        } else if (sortOption === 'price-high') {
-          sortedProperties.sort((a, b) => b.price - a.price);
-        } else if (sortOption === 'bedrooms') {
-          sortedProperties.sort((a, b) => b.beds - a.beds);
-        }
-        
-        setProperties(sortedProperties);
-      } catch (err) {
-        setError('Failed to load properties. Please try again.');
-        console.error('Error fetching properties:', err);
-      } finally {
-        setLoading(false);
-      }
     };
-    
+
     fetchProperties();
   }, [filters, sortOption]);
+
   
   // Handle filter changes
   const handleFilterChange = (e) => {
