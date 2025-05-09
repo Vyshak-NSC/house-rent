@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { logout } from '../api/api'; 
+import { useRouter } from 'next/navigation'; // Import useRouter to handle redirects
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication state
-    
+    const router = useRouter(); // Access the router for navigation
 
     // Handle scroll events for sticky header
     useEffect(() => {
@@ -31,7 +32,6 @@ export default function Navbar() {
 
         if (token) {
             setIsAuthenticated(true);
-            
         } else {
             setIsAuthenticated(false);
         }
@@ -39,7 +39,7 @@ export default function Navbar() {
 
     // Logout function
     const handleLogout = () => {
-        logout(); // Make sure this function clears the JWT token
+        logout(); // Clear the JWT token
         setIsAuthenticated(false); // Update the UI state
         localStorage.removeItem('access_token'); // Remove token from localStorage
         router.push('/'); // Redirect to the homepage after logout
@@ -68,7 +68,7 @@ export default function Navbar() {
                             </h1>
                         </Link>
                     </div>
-                    
+
                     {/* Desktop menu */}
                     <div className="hidden md:flex items-center space-x-8">
                         <div className="nav-links flex space-x-6">
@@ -78,21 +78,12 @@ export default function Navbar() {
                             <Link href="/about" className="text-gray-900 hover:text-[var(--primary-color)] font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-[var(--primary-color)] after:transition-all hover:after:w-full">About Us</Link>
                             <Link href="/contact" className="text-gray-900 hover:text-[var(--primary-color)] font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-[var(--primary-color)] after:transition-all hover:after:w-full">Contact</Link>
                         </div>
-                        
-                        {/* <div className="auth-buttons flex space-x-4">
-                            <Link href="/auth/signin" className="btn btn-outline py-2 px-4 text-sm">Sign In</Link>
-                            <Link href="/auth/signup" className="btn btn-primary py-2 px-4 text-sm">Sign Up</Link>
-                            <button
-                                onClick={() => logout()}
-                                className="text-sm text-red-500 hover:underline"
-                            >
-                                Logout
-                            </button>
-                        </div> */}
+
+                        {/* Desktop auth buttons */}
                         <div className="auth-buttons flex space-x-4">
                             {isAuthenticated ? (
                                 <button
-                                    onClick={handleLogout} // Function to handle logout (clear token, etc.)
+                                    onClick={handleLogout} // Function to handle logout
                                     className="text-sm text-red-500 hover:underline"
                                 >
                                     Logout
@@ -109,7 +100,7 @@ export default function Navbar() {
                             )}
                         </div>
                     </div>
-                    
+
                     {/* Mobile menu button */}
                     <div className="md:hidden">
                         <button 
@@ -125,7 +116,7 @@ export default function Navbar() {
                         </button>
                     </div>
                 </div>
-                
+
                 {/* Mobile menu */}
                 <div className={`md:hidden transition-all duration-300 overflow-hidden ${isMenuOpen ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
                     <div className="flex flex-col space-y-3 py-4">
@@ -135,13 +126,25 @@ export default function Navbar() {
                         <Link href="/about" className="block px-4 py-2 text-gray-900 hover:bg-gray-100 rounded-lg">About Us</Link>
                         <Link href="/contact" className="block px-4 py-2 text-gray-900 hover:bg-gray-100 rounded-lg">Contact</Link>
                     </div>
-                    
+
+                    {/* Mobile auth buttons */}
                     <div className="flex flex-col space-y-3 py-4 border-t border-gray-200">
-                        <Link href="/auth/signin" className="block px-4 py-2 text-center text-[var(--primary-color)] border border-[var(--primary-color)] rounded-lg">Sign In</Link>
-                        <Link href="/auth/signup" className="block px-4 py-2 text-center text-white bg-[var(--primary-color)] rounded-lg">Sign Up</Link>
+                        {isAuthenticated ? (
+                            <button
+                                onClick={handleLogout}
+                                className="block px-4 py-2 text-center text-red-500 hover:bg-gray-100 rounded-lg"
+                            >
+                                Logout
+                            </button>
+                        ) : (
+                            <>
+                                <Link href="/auth/signin" className="block px-4 py-2 text-center text-[var(--primary-color)] border border-[var(--primary-color)] rounded-lg">Sign In</Link>
+                                <Link href="/auth/signup" className="block px-4 py-2 text-center text-white bg-[var(--primary-color)] rounded-lg">Sign Up</Link>
+                            </>
+                        )}
                     </div>
                 </div>
             </nav>
         </header>
     );
-} 
+}
