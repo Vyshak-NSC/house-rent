@@ -10,3 +10,12 @@ export const registerUser = async (formData) => {
     });
     return response.data;
 };
+
+export const loginUser = async (formData) => {
+    const response = await axios.post(`${API_BASE_URL}login/`, formData, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    return response.data;
+};
