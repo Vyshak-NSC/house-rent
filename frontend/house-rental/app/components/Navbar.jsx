@@ -7,6 +7,8 @@ import { logout } from '../api/api';
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication state
+    
 
     // Handle scroll events for sticky header
     useEffect(() => {
@@ -21,6 +23,27 @@ export default function Navbar() {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Check if the user is logged in (via JWT token or any other method)
+    useEffect(() => {
+        const token = localStorage.getItem('access_token');
+        console.log("JWT Token in LocalStorage: ", token); // Debugging: Check the token
+
+        if (token) {
+            setIsAuthenticated(true);
+            
+        } else {
+            setIsAuthenticated(false);
+        }
+    }, []);
+
+    // Logout function
+    const handleLogout = () => {
+        logout(); // Make sure this function clears the JWT token
+        setIsAuthenticated(false); // Update the UI state
+        localStorage.removeItem('access_token'); // Remove token from localStorage
+        router.push('/'); // Redirect to the homepage after logout
+    };
 
     // Close mobile menu when screen size changes
     useEffect(() => {
@@ -56,7 +79,7 @@ export default function Navbar() {
                             <Link href="/contact" className="text-gray-900 hover:text-[var(--primary-color)] font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-[var(--primary-color)] after:transition-all hover:after:w-full">Contact</Link>
                         </div>
                         
-                        <div className="auth-buttons flex space-x-4">
+                        {/* <div className="auth-buttons flex space-x-4">
                             <Link href="/auth/signin" className="btn btn-outline py-2 px-4 text-sm">Sign In</Link>
                             <Link href="/auth/signup" className="btn btn-primary py-2 px-4 text-sm">Sign Up</Link>
                             <button
@@ -65,6 +88,25 @@ export default function Navbar() {
                             >
                                 Logout
                             </button>
+                        </div> */}
+                        <div className="auth-buttons flex space-x-4">
+                            {isAuthenticated ? (
+                                <button
+                                    onClick={handleLogout} // Function to handle logout (clear token, etc.)
+                                    className="text-sm text-red-500 hover:underline"
+                                >
+                                    Logout
+                                </button>
+                            ) : (
+                                <>
+                                    <Link href="/auth/signin" className="btn btn-outline py-2 px-4 text-sm">
+                                        Sign In
+                                    </Link>
+                                    <Link href="/auth/signup" className="btn btn-primary py-2 px-4 text-sm">
+                                        Sign Up
+                                    </Link>
+                                </>
+                            )}
                         </div>
                     </div>
                     
