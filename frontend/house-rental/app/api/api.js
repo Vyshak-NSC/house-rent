@@ -19,3 +19,11 @@ export const loginUser = async (formData) => {
     });
     return response.data;
 };
+
+export const logout = () => {
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        window.location.href = '/auth/signin';
+    }
+};

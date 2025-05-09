@@ -1,4 +1,4 @@
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 export const getUserFromToken = () => {
     if (typeof window === 'undefined') return null;
@@ -8,6 +8,7 @@ export const getUserFromToken = () => {
 
     try {
         const decoded = jwtDecode(token);
+        console.log('Decoded token:', decoded); // 👈 This helps you inspect it
         return decoded?.username || null;
     } catch (err) {
         console.error('Invalid token:', err);

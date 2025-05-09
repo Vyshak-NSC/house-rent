@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { logout } from '../api/api'; 
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -58,6 +59,12 @@ export default function Navbar() {
                         <div className="auth-buttons flex space-x-4">
                             <Link href="/auth/signin" className="btn btn-outline py-2 px-4 text-sm">Sign In</Link>
                             <Link href="/auth/signup" className="btn btn-primary py-2 px-4 text-sm">Sign Up</Link>
+                            <button
+                                onClick={() => logout()}
+                                className="text-sm text-red-500 hover:underline"
+                            >
+                                Logout
+                            </button>
                         </div>
                     </div>
                     

@@ -26,3 +26,9 @@ def register_user(request):
 
     user = User.objects.create_user(username=username, email=email, password=password, role=role)
     return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
+
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CustomTokenObtainPairSerializer
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
